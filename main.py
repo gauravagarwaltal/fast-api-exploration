@@ -4,12 +4,16 @@ import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+from typing import Optional
+import pdb
 
 app = FastAPI()
 
 origins = ["*"]
 
 app.add_middleware(CORSMiddleware, allow_origins=origins)
+
+in_memory_database = []
 
 
 class Request(BaseModel):
@@ -21,6 +25,26 @@ class Request(BaseModel):
 class Response(BaseModel):
     username: str
     email: str
+
+
+class RegisterUserRequest(BaseModel):
+    email: str
+    phone_number: str
+    password: str
+
+
+class RegisterUserResponse(BaseModel):
+    email: Optional[str] = ""
+    phone_number: Optional[str] = ""
+    message:str
+
+
+async def is_user_present(phone_number):
+    for data in in_memory_database:
+        if "phone_number" in data:
+            if data["phone_number"] == phone_number:
+                return True
+    return False
 
 
 @app.middleware("http")
@@ -42,6 +66,23 @@ def home_post(req: Request):
     if req.username == "testdriven.io" and req.password == "testdriven.io":
         return req
     return {"message": "Authentication Failed"}
+
+
+@app.post("/register/user", response_model=RegisterUserResponse)
+async def register_user(req: RegisterUserRequest):
+    result = await is_user_present(req.phone_number)
+    if result:
+        return {
+            "message":"user is already present",
+            "email":req.email,
+            "phone_number":req.phone_number
+        }
+    data_dict = {}
+    data_dict["email"] = req.email
+    data_dict["password"] = req.password
+    data_dict["phone_number"] = req.phone_number
+    in_memory_database.append(data_dict)
+    return {"message":"user has been added"}
 
 
 @app.get("/employee/{employee_id}")
