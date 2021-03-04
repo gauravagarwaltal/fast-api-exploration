@@ -9,6 +9,7 @@ from models import Request, Response
 from sample_async_example import async_router
 from sample_background_task import back_ground_task_router
 from user_registration import register_user_router
+from driver_logs import driver_logs_router
 
 app = FastAPI()
 
@@ -19,6 +20,7 @@ app.include_router(async_router)
 app.include_router(back_ground_task_router)
 app.include_router(database_router)
 app.include_router(register_user_router)
+app.include_router(driver_logs_router)
 in_memory_database = []
 
 
