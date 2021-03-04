@@ -1,7 +1,8 @@
 from datetime import datetime
+from typing import List
 from typing import Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 
 
 class RegisterUserRequest(BaseModel):
@@ -33,3 +34,9 @@ class DriverLogsRequest(BaseModel):
     distance_travelled: int
     phone_number: str
 
+
+class EmailSchema(BaseModel):
+    username: str
+    sender: EmailStr
+    password: str
+    receivers: List[EmailStr]
